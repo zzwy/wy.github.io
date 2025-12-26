@@ -16,18 +16,18 @@ def get_args():
     parser = argparse.ArgumentParser(description='HDR-Transformer',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--dataset_dir", type=str, default='/public/home/zhouweiyu/Data/Sig',
+    parser.add_argument("--dataset_dir", type=str, default='None',#dataset path
                         help='dataset directory'),
     parser.add_argument('--patch_size', type=int, default=256),
-    parser.add_argument("--sub_set", type=str, default='sig17_training_crop_aug128_stride64',
+    parser.add_argument("--sub_set", type=str, default='None',#augment dataset
                         help='dataset directory')
-    parser.add_argument('--logdir', type=str, default='./wo_prompt_sig_checkpoint',
+    parser.add_argument('--logdir', type=str, default='None',
                         help='target log directory')
     parser.add_argument('--num_workers', type=int, default=4, metavar='N',
                         help='number of workers to fetch data (default: 8)')
     # Training
     parser.add_argument('--resume', type=str, default=None,
-                        help='load model from a .pth file')
+                        help='load model from a .pth file')#checkpoint
     parser.add_argument('--no_cuda', action='store_true', default=False,
                         help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=443, metavar='S',
@@ -158,7 +158,6 @@ def main():
             checkpoint = torch.load(args.resume, map_location=device)  # 确保加载到正确的设备
             args.start_epoch = checkpoint['epoch']
 
-            # 去除 'module.' 前缀（如果检查点是在多 GPU 训练下保存的）
             state_dict = checkpoint['state_dict']
             new_state_dict = {}
             for k, v in state_dict.items():
@@ -168,8 +167,7 @@ def main():
                     name = k
                 new_state_dict[name] = v
 
-            # 加载权重
-            model.load_state_dict(new_state_dict, strict=False)  # 使用 strict=False 避免键名不匹配
+            model.load_state_dict(new_state_dict, strict=False)  
             #optimizer.load_state_dict(checkpoint['optimizer'])
             print("===> Loaded checkpoint: epoch {}".format(checkpoint['epoch']))
         else:
